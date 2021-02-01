@@ -171,7 +171,6 @@ async def on_message(message):
   if message.content == "/whoami": #if author types /whoami bot responds with username
     await channel.send(message.author)
 
-  """
   if message.content == "/nickname": #if author types /nickname bot asks for input for new nickname
     await channel.send("Type /name nicknamehere")
     def check(msg):
@@ -185,6 +184,5 @@ async def on_message(message):
     await channel.send("Creating DM with " + str(message.author))
     await message.author.send('*DM started with ' + str(message.author) + '*')
     await message.author.send('Hello!')
-  """
 
 client_run()
