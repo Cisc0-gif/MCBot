@@ -5,7 +5,27 @@
 # @url    : https://github.com/Cisc0-gif/MCBotv1.0
 # @author : Cisc0-gif
 
-import discord, asyncio, logging, os, random, time, sys, pathlib
+import os, sys, random, time, pathlib, logging, subprocess
+
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+if 'discord' not in installed_packages:
+  print("Package 'discord' not installed, installing now...")
+  subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'discord'])
+
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+if 'asyncio' not in installed_packages:
+  print("Package 'asyncio' not installed, installing now...")
+  subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'asyncio'])
+
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+if 'pathlib' not in installed_packages:
+  print("Package 'pathlib' not installed, installing now...")
+  subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pathlib'])
+
+import discord, asyncio, pathlib
 
 admins = []
 
