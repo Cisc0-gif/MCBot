@@ -5,7 +5,7 @@
 # @url    : https://github.com/Cisc0-gif/MCBotv1.0
 # @author : Cisc0-gif
 
-import os, sys, random, time, pathlib, logging, subprocess
+import os, sys, random, time, pathlib, logging, subprocess, json
 
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
@@ -119,7 +119,7 @@ async def on_message(message):
   logwrite(str(message.author) + " said: " + str(message.content) + "-- Time: " + time.ctime())
 
   if message.content == "/help" or message.content == "/h":
-    await channel.send("/version or /v for server version\n/ulog to view bot update log\n/modlist or /mods to view server mod list\n/whoami to ping bot response\n/serverStatus to check if server is up\n/serverOn to turn server on\n/serverOff to turn server off")
+    await channel.send("/version or /v for server version\n/ulog to view bot update log\n/modlist or /mods to view server mod list\n/whoami to ping bot response\n/serverStatus to check if server is up\n/serverOn to turn server on\n/serverOff to turn server off\n/ops lists users with operator permissions")
 
   if message.content == "/version" or message.content == "/v":
     await channel.send("Running Minecraft Java Edition - v#")
@@ -185,6 +185,16 @@ async def on_message(message):
         parsed = contents.splitlines()
         for i in parsed:
           await channel.send(i)
+    finally:
+      f.close()
+      
+  if message.content == "/ops":
+    try:
+      with open("ops.json", "r") as f:
+        data = json.load(f)
+      await channel.send(":Operators:")
+      for i in range(0, len(data)):
+        await channel.send(" -" + str(data[i]["name"]))
     finally:
       f.close()
 

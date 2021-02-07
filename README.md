@@ -1,6 +1,6 @@
 # MCBotv1.0 - Discord bot to control your Java Minecraft Servers (Windows Only)
 
-**UPDATE:** Added auto-installation of dependent libraries (discord, pathlib, and asyncio)
+**UPDATE:** Added new /ops command to list server operators
 
 A simple bot compatible with all Minecraft Java servers (modded or not) to post mod links, control the server, and a few other discord commands.
 
