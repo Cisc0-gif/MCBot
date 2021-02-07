@@ -119,7 +119,7 @@ async def on_message(message):
   logwrite(str(message.author) + " said: " + str(message.content) + "-- Time: " + time.ctime())
 
   if message.content == "/help" or message.content == "/h":
-    await channel.send("/version or /v for server version\n/ulog to view bot update log\n/modlist or /mods to view server mod list\n/whoami to ping bot response\n/serverStatus to check if server is up\n/serverOn to turn server on\n/serverOff to turn server off\n/ops lists users with operator permissions")
+    await channel.send("/version or /v for server version\n/ulog to view bot update log\n/modlist or /mods to view server mod list\n/whoami to ping bot response\n/serverStatus to check if server is up\n/serverOn to turn server on\n/serverOff to turn server off\n/ops lists users with operator permission\n/motd sets the message of the day")
 
   if message.content == "/version" or message.content == "/v":
     await channel.send("Running Minecraft Java Edition - v#")
@@ -177,6 +177,21 @@ async def on_message(message):
     finally:
       f.close()
 
+  if message.content == "/motd":
+    await channel.send("Type /message MESSAGE")
+    def check(msg):
+      return msg.content.startswith('/message')
+    message = await client.wait_for('message', check=check)
+    motd = message.content[len('/message'):].strip()
+    with open("server.properties", "r") as f:
+      contents = f.read().splitlines()
+      contents[27] = "motd=" + str(motd)
+    f.close()
+    with open("server.properties", "w") as w:
+      w.write("\n".join(contents))
+    w.close()
+    await channel.send("MOTD set to: " + str(motd))
+      
   if message.content == "/mods" or message.content == "/modlist":
     try:
       f = open("modList.txt","r+")
