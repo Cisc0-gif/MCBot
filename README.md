@@ -1,4 +1,4 @@
-# MCBotv1.0 - Discord bot to control your Java Minecraft Servers (Windows Only)
+# MCBotv1.1 - Discord bot to control your Java Minecraft Servers (Windows Only)
 
 **UPDATE:** Added /users, /admins, /addAdmin commands and sqlite3 database for storing users and access control!
 
