@@ -5,7 +5,7 @@
 # @url    : https://github.com/Cisc0-gif/MCBotv1.0
 # @author : Cisc0-gif
 
-import os, sys, random, time, pathlib, logging, subprocess, json
+import os, sys, random, time, pathlib, logging, subprocess, json, sqlite3
 
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
@@ -27,8 +27,6 @@ if 'pathlib' not in installed_packages:
 
 import discord, asyncio, pathlib
 
-admins = []
-
 client = discord.Client(command_prefix='/', description='Basic Commands')
 TOKEN = ''
 
@@ -39,6 +37,12 @@ logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(handler)
+
+def convert(old):   #for converting list of tuples into list of strings
+  new = []
+  for i in range(0, len(old)):
+    new.append(old[i][0])
+  return new
 
 def client_run():
   client.loop.create_task(background_loop())
@@ -113,16 +117,74 @@ async def on_guild_channel_update(before, after):
 @client.event
 async def on_message(message):
   channel = message.channel
+  
   if message.author == client.user:
     return #ignore what bot says in server so no message loop
   print(message.author, "said:", message.content, "-- Time:", time.ctime()) #reports to discord.log and live chat
   logwrite(str(message.author) + " said: " + str(message.content) + "-- Time: " + time.ctime())
+  
+  file = pathlib.Path("Members.db")
+  if file.exists():
+    pass
+  else:
+    print("Database 'Members.db' doesn't exist! Creating 'Members.db' now...")
+    conn = sqlite3.connect("Members.db")
+    crsr = conn.cursor()
+    crsr.execute("CREATE TABLE users ( perms INTEGER, name VARCHAR(20) );")
+    conn.commit()
+    conn.close()
+    
+  conn = sqlite3.connect("Members.db") #open connection to users.db
+  crsr = conn.cursor()
+  crsr.execute("SELECT name FROM users")
+  names0 = crsr.fetchall()
+  names = convert(names0) #converted list of tuples into strings
+  crsr.execute("SELECT name FROM users WHERE perms == '0'")
+  users0 = crsr.fetchall()
+  users = convert(users0) 
+  crsr.execute("SELECT name FROM users WHERE perms == '1'")
+  admins0 = crsr.fetchall()
+  admins = convert(admins0)
+
+  if str(message.author) not in names:
+    crsr.execute("INSERT INTO users VALUES (?, ?)", (0, str(message.author)))
+    conn.commit()
 
   if message.content == "/help" or message.content == "/h":
-    await channel.send("/version or /v for server version\n/ulog to view bot update log\n/modlist or /mods to view server mod list\n/whoami to ping bot response\n/serverStatus to check if server is up\n/serverOn to turn server on\n/serverOff to turn server off\n/ops lists users with operator permission\n/motd sets the message of the day")
+    await channel.send("/version or /v for server version\n/ulog to view bot update log\n/modlist or /mods to view server mod list\n/whoami to ping bot response\n/serverStatus to check if server is up\n/serverOn* to turn server on\n/serverOff* to turn server off\n/ops lists users with operator permission\n/motd sets the message of the day\n/users displays list of low-level users in discord server\n/admins displays admin-level users in discord server\n/addAdmin* promotes user to admin-level access")
 
   if message.content == "/version" or message.content == "/v":
     await channel.send("Running Minecraft Java Edition - v#")
+
+  if message.content == "/users":
+    await channel.send("Low-priv Users: ")
+    for i in range(0, len(users)):
+      await channel.send("- " + str(users[i]))
+
+  if message.content == "/admins":
+    await channel.send("Admin Users: ")
+    for i in range(0, len(admins)):
+      await channel.send("- " + str(admins[i]))
+
+  if message.content == "/addAdmin":
+    if str(message.author) in admins:
+      await channel.send("Type /user USERNAME#1234")
+      def check(msg):
+        return msg.content.startswith('/user')
+      message = await client.wait_for('message', check=check)
+      user = message.content[len('/user'):].strip()
+      if user not in names:
+        await channel.send("User '" + user + "' not in database, adding as admin now...")
+        crsr.execute("INSERT INTO users VALUES (?, ?)", (1, user))
+        conn.commit()
+      elif user in admins:
+        await channel.send("User '" + user + "' already has Admin")
+      else:
+        crsr.execute("UPDATE users SET perms == '1' WHERE name == '" + user + "'")
+        conn.commit()
+        await channel.send("User '" + user + "' was made an Admin, Congratulations!")
+    else:
+      await channel.send("Acces Denied...")
 
   if message.content == "/serverStatus":
     file = pathlib.Path("server.lock")
@@ -229,5 +291,7 @@ async def on_message(message):
     await channel.send("Creating DM with " + str(message.author))
     await message.author.send('*DM started with ' + str(message.author) + '*')
     await message.author.send('Hello!')
+
+  conn.close() #close users.db connection
 
 client_run()
