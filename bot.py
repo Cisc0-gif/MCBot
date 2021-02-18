@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 # -*- coding:utf-8 -*-
 #
-# @name   : MCBotv1.0 - Java Minecraft Server Control Bot
-# @url    : https://github.com/Cisc0-gif/MCBotv1.0
+# @name   : MCBotv1.1 - Java Minecraft Server Control Bot
+# @url    : https://github.com/Cisc0-gif/MCBot
 # @author : Cisc0-gif
 
 import os, sys, random, time, pathlib, logging, subprocess, json, sqlite3
