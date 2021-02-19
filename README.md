@@ -1,6 +1,6 @@
 # MCBotv1.1 - Discord bot to control your Java Minecraft Servers (Windows Only)
 
-**UPDATE:** Added /users, /admins, /addAdmin commands and sqlite3 database for storing users and access control!
+**UPDATE:** Added /newPass and improved server password storage and access
 
 A simple bot compatible with all Minecraft Java servers (modded or not) to post mod links, control the server, and a few other discord commands.
 
@@ -27,7 +27,7 @@ Go to the [Forge Server download page](<http://files.minecraftforge.net/maven/ne
 Next, move modList.txt, bot.py, and update_log.txt into your server directory. Edit modList to include the links of your mods for your server's community and edit update_log.txt with changes if you'd like to.
 
 ### Configue MCBotv1.0
-Lastly, we'll set a password for admin commands, configure your server.jar file, and add yourself as an admin. Open 'bot.py' in any editor and in the var "admins", enter the names of discord users you wish to be able to turn the server on or off (Ex. Name#1234). Now go down to the ``` /serverOn ``` and ``` /serverOff ``` commands and in the lines ``` if pword == "PASSWORD" ``` and change PASSWORD to whatever you want. Next go to ``` os.system('start cmd.exe... ``` and change the ``` server.jar ``` portion to the name of your server jar file. That's it! Now just run the bot with ``` python3 bot.py ``` and in discord, turn the server on with ``` /serverOn ```. Lastly, run ``` bot.py ``` and enter ``` /whoami ``` to add yourself to the Members.db database. Now run ``` createAdmin.py ``` and enter your discord username (w/ numbers) to promote yourself as admin and gain access to admin commands (/addAdmin, /serverOn, /serverOff).
+Lastly, we'll configure your server.jar file and add yourself as an admin. Go to ``` os.system('start cmd.exe... ``` and change the ``` server.jar ``` portion to the name of your server jar file. Now just run the bot with ``` python3 bot.py ``` and in discord enter ``` /whoami ``` to add yourself to the Members.db database. Now run ``` createAdmin.py ``` and enter your discord username (w/ numbers) to promote yourself as admin and gain access to admin commands (/addAdmin, /serverOn, /serverOff, /setPass).
 
 ## Built With
 

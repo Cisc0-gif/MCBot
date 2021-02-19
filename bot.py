@@ -133,7 +133,11 @@ async def on_message(message):
     crsr.execute("CREATE TABLE users ( perms INTEGER, name VARCHAR(20) );")
     conn.commit()
     conn.close()
-    
+    initAdminPass = input("Please enter new server password: ")
+    with open("serverPass.key", "w+") as f:
+      f.write(initAdminPass)
+    f.close()
+
   conn = sqlite3.connect("Members.db") #open connection to users.db
   crsr = conn.cursor()
   crsr.execute("SELECT name FROM users")
@@ -145,6 +149,17 @@ async def on_message(message):
   crsr.execute("SELECT name FROM users WHERE perms == '1'")
   admins0 = crsr.fetchall()
   admins = convert(admins0)
+  file = pathlib.Path("serverPass.key")
+  if file.exists():
+    with open("serverPass.key", "r") as f:
+      adminKey = f.read()
+    f.close()
+  else:
+    print("File: 'serverPass.key' missing! Creating file now...")
+    adminKey = input("Please enter new server password: ")
+    with open("serverPass.key", "w+") as f:
+      f.write(adminKey)
+    f.close()
 
   if str(message.author) not in names:
     crsr.execute("INSERT INTO users VALUES (?, ?)", (0, str(message.author)))
@@ -186,6 +201,34 @@ async def on_message(message):
     else:
       await channel.send("Acces Denied...")
 
+  if message.content == "/setPass":
+    if str(message.author) in admins:
+      file = pathlib.Path("serverPass.key")
+      if file.exists():
+        await channel.send("Server key already exists! Enter current password to overwrite...")
+        await channel.send("Type /oldPass PASSWORD")
+        def check(msg):
+          return msg.content.startswith('/oldPass')
+        message = await client.wait_for('message', check=check)
+        oldPass = message.content[len('/oldPass'):].strip()
+        if oldPass == adminKey:
+          await channel.send(":Authorized: Please enter new password...")
+          await channel.send("Type /newPass PASSWORD")
+          def check(msg):
+            return msg.content.startswith('/newPass')
+          message = await client.wait_for('message', check=check)
+          newPass = message.content[len('/newPass'):].strip()
+          with open("serverPass.key", "w+") as f:
+            f.write(newPass)
+          f.close()
+          await channel.send("Password updated!")
+        else:
+          await channel.send("https://static.wikia.nocookie.net/jurassicpark/images/b/b3/Ahahahreal.gif/revision/latest/scale-to-width-down/340?cb=20170722184515")
+      else:
+        await channel.send("Server key not found! Please ask admin to create 'serverPass.key' before it can be changed...")
+    else:
+      await channel.send("Access Denied...")
+
   if message.content == "/serverStatus":
     file = pathlib.Path("server.lock")
     if file.exists():
@@ -203,7 +246,7 @@ async def on_message(message):
         return msg.content.startswith('/pass')
       message = await client.wait_for('message', check=check)
       pword = message.content[len('/pass'):].strip()
-      if pword == "PASSWORD":
+      if pword == adminKey:
         await channel.send("Starting server, please wait 1 minute for server to initialize...")
         os.system("start cmd.exe /c java -Xms####M -Xmx####M -jar SERVER.jar && echo >> server.lock")
       else:
@@ -221,7 +264,7 @@ async def on_message(message):
         return msg.content.startswith('/pass')
       message = await client.wait_for('message', check=check)
       pword = message.content[len('/pass'):].strip()
-      if pword == "PASSWORD":
+      if pword == adminKey:
         await channel.send("Stopping server...")
         os.system("taskkill /IM java.exe /F")
         os.system("del server.lock")
